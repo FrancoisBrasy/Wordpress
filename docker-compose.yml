@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: yourpassword
+    networks:
+      - backend
+    secrets:
+      - mysql_root_password
+
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    volumes:
+      - wordpress_data:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: yourpassword
+      WORDPRESS_DB_NAME: wordpress
+    ports:
+      - "8000:80"
+    networks:
+      - backend
+
+networks:
+  backend:
+volumes:
+  db_data:
+  wordpress_data:
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
